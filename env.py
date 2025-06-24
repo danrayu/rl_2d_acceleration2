@@ -18,7 +18,8 @@ class AccelerationNavigationEnv(gym.Env):
 
         # Agent and target
         self.agent_radius = 10
-        self.target_radius = 10
+        self.target_radius = 40
+        self.current_step = 0
 
         # Initialize agent state (x, y, vx, vy)
         self.state = np.zeros(4)  # [x, y, vx, vy]
@@ -45,6 +46,7 @@ class AccelerationNavigationEnv(gym.Env):
 
     def reset(self, seed=None, **kwargs):
         # Optional: Set the seed for random number generation (if needed)
+        self.current_step = 0
         self.np_random, seed = gym.utils.seeding.np_random(seed)
 
         # Randomize agent position and reset velocity
@@ -96,7 +98,10 @@ class AccelerationNavigationEnv(gym.Env):
 
         if self.render_mode == "human":
             self.render()
-
+        self.current_step += 1
+        if self.current_step >= 1000:
+            done = True
+            reward += -100
         return observation, reward, done, False, {}
 
     def render(self):
