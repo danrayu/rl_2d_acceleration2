@@ -87,11 +87,15 @@ class AccelerationNavigationEnv(gym.Env):
         self.state[1] += self.state[3]
 
         # Compute the distance between agent and target
-        dist = np.linalg.norm(self.state[:2] - self.target_pos)
+        dist = (np.linalg.norm(self.state[:2] - self.target_pos))
 
         # Check if agent has collided with the target (distance <= sum of radii)
         done = dist <= self.agent_radius + self.target_radius
-        reward = -dist  # Reward is negative distance (closer to target = higher reward)
+        reward = -dist/10000  # Reward is negative distance (closer to target = higher reward)
+        if done:
+            reward += 100
+            speed_reward = (self.max_speed - np.sqrt(self.state[2]**2 + self.state[3]**2))*50
+            reward += speed_reward
 
         # Observation now includes the target's position
         observation = np.concatenate((self.state, self.target_pos))  # [x, y, vx, vy, target_x, target_y]
@@ -105,17 +109,18 @@ class AccelerationNavigationEnv(gym.Env):
         return observation, reward, done, False, {}
 
     def render(self):
-        # Clear the screen
-        self.screen.fill((255, 255, 255))
+        if self.render_mode == "human":
+            # Clear the screen
+            self.screen.fill((255, 255, 255))
 
-        # Draw agent (circle)
-        pygame.draw.circle(self.screen, (0, 255, 0), (int(self.state[0] + self.width / 2), int(self.state[1] + self.height / 2)), self.agent_radius)
+            # Draw agent (circle)
+            pygame.draw.circle(self.screen, (0, 255, 0), (int(self.state[0] + self.width / 2), int(self.state[1] + self.height / 2)), self.agent_radius)
 
-        # Draw target (circle)
-        pygame.draw.circle(self.screen, (255, 0, 0), (int(self.target_pos[0] + self.width / 2), int(self.target_pos[1] + self.height / 2)), self.target_radius)
+            # Draw target (circle)
+            pygame.draw.circle(self.screen, (255, 0, 0), (int(self.target_pos[0] + self.width / 2), int(self.target_pos[1] + self.height / 2)), self.target_radius)
 
-        pygame.display.flip()
-        self.clock.tick(60)  # Control the frame rate
+            pygame.display.flip()
+            self.clock.tick(60)  # Control the frame rate
 
     def close(self):
         if self.render_mode == "human":
