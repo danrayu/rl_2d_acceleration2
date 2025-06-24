@@ -21,7 +21,7 @@ env = AccelerationNavigationEnv(render_mode="humaan")
 
 # Create the DDPG model
 model = SAC('MlpPolicy', env, verbose=1, device=device, tensorboard_log=logdir)
-model.load("model/1750789134/21.zip")
+model.load("model/1750789134/196.zip")
 
 # Train the agent
 for i in range(1, 1000):
@@ -30,7 +30,6 @@ for i in range(1, 1000):
     
 
 # Save the model
-model.save("ddpg_acceleration_navigation_model")
 
 # Use the trained model to make predictions (e.g., move the agent)
 obs = env.reset()
@@ -38,3 +37,4 @@ done = False
 while not done:
     action, _states = model.predict(obs)
     obs, reward, done, _, _ = env.step(action)
+
