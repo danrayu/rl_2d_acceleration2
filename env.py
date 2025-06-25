@@ -103,8 +103,6 @@ class AccelerationNavigationEnv(gym.Env):
             reward += 100
             speed_reward = (self.max_speed - np.sqrt(self.state[2]**2 + self.state[3]**2))*30
             reward += speed_reward
-            path_len_reward = max(0, (self.path_length)/25)
-            reward += path_len_reward
 
         # Observation now includes the target's position
         observation = np.concatenate((self.state, self.target_pos))  # [x, y, vx, vy, target_x, target_y]
