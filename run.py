@@ -13,8 +13,10 @@ print(f"Using device: {device}")
 env = AccelerationNavigationEnv(render_mode="human")
 obs, info = env.reset()  # Reset environment
 
+model = SAC('MlpPolicy', env, verbose=1, device=device)
+
 # Load the trained model
-model = SAC.load("model/1750830361/55.zip", env)
+# model = SAC.load("model/1750830361/55.zip", env)
 
 # Reset environment and start testing
 done = False
