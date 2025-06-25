@@ -24,7 +24,7 @@ model = SAC('MlpPolicy', env, verbose=1, device=device, tensorboard_log=logdir)
 model.load("model/1750789134/196.zip")
 
 # Train the agent
-for i in range(1, 1000):
+for i in range(1, 300):
     model.learn(total_timesteps=10000, reset_num_timesteps=False, tb_log_name=f"run_{timestamp}")
     model.save(f"{modeldir}/{i}")
     

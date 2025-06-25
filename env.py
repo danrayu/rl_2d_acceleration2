@@ -13,13 +13,14 @@ class AccelerationNavigationEnv(gym.Env):
         self.width = 800
         self.height = 600
 
-        self.max_speed = 2.0
-        self.max_acceleration = 0.1
+        self.max_speed = 3.0
+        self.max_acceleration = 0.05
 
         # Agent and target
         self.agent_radius = 10
         self.target_radius = 40
         self.current_step = 0
+        self.path_length = 0
 
         # Initialize agent state (x, y, vx, vy)
         self.state = np.zeros(4)  # [x, y, vx, vy]
@@ -45,6 +46,7 @@ class AccelerationNavigationEnv(gym.Env):
             self.clock = pygame.time.Clock()
 
     def reset(self, seed=None, **kwargs):
+        self.path_length = 0
         # Optional: Set the seed for random number generation (if needed)
         self.current_step = 0
         self.np_random, seed = gym.utils.seeding.np_random(seed)
@@ -57,6 +59,9 @@ class AccelerationNavigationEnv(gym.Env):
         # Randomize target position
         self.target_pos = np.array([random.uniform(-self.width / 2, self.width / 2),
                                     random.uniform(-self.height / 2, self.height / 2)])
+
+
+        self.initial_distance = np.linalg.norm(self.state[:2] - self.target_pos)
 
         # Observation now includes the target's position
         observation = np.concatenate((self.state, self.target_pos))  # [x, y, vx, vy, target_x, target_y]
@@ -85,7 +90,9 @@ class AccelerationNavigationEnv(gym.Env):
         # Update position based on velocity
         self.state[0] += self.state[2]
         self.state[1] += self.state[3]
-
+        speed = np.sqrt(self.state[2]**2 + self.state[3]**2)
+        self.path_length += abs(speed)
+        # print(self.path_length)
         # Compute the distance between agent and target
         dist = (np.linalg.norm(self.state[:2] - self.target_pos))
 
@@ -94,8 +101,10 @@ class AccelerationNavigationEnv(gym.Env):
         reward = -dist/10000  # Reward is negative distance (closer to target = higher reward)
         if done:
             reward += 100
-            speed_reward = (self.max_speed - np.sqrt(self.state[2]**2 + self.state[3]**2))*50
+            speed_reward = (self.max_speed - np.sqrt(self.state[2]**2 + self.state[3]**2))*30
             reward += speed_reward
+            path_len_reward = max(0, (self.path_length)/25)
+            reward += path_len_reward
 
         # Observation now includes the target's position
         observation = np.concatenate((self.state, self.target_pos))  # [x, y, vx, vy, target_x, target_y]
